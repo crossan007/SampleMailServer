@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 apt-get install -q ssl-cert
 make-ssl-cert generate-default-snakeoil --force-overwrite
 
