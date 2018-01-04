@@ -1,0 +1,44 @@
+<VirtualHost *:80>
+        ServerName _PF_VSERVER_NAME_
+        ServerAdmin someone@example.com
+        DocumentRoot /var/www/html
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+		CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+RewriteEngine on
+RewriteCond %{SERVER_NAME} =postfix.admin
+RewriteRule ^ https://postfix.admin%{REQUEST_URI} [END,QSA,R=permanent]
+</VirtualHost>
+
+
+<IfModule mod_ssl.c>
+	<VirtualHost _default_:443>
+		ServerName _PF_VSERVER_NAME_
+		ServerAdmin webmaster@localhost
+		DocumentRoot _PF_VSERVER_DOC_ROOT_
+		ErrorLog ${APACHE_LOG_DIR}/postfixadmin.log
+		CustomLog ${APACHE_LOG_DIR}/postfixadmin-access.log combined
+		
+		SSLEngine on
+		SSLCertificateFile	/etc/ssl/certs/ssl-cert-snakeoil.pem
+		SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+
+		<Directory _PF_VSERVER_DOC_ROOT_>
+			Options Indexes FollowSymLinks MultiViews
+			AllowOverride All
+			Require all granted
+		</Directory>
+
+		<FilesMatch "\.(cgi|shtml|phtml|php)$">
+				SSLOptions +StdEnvVars
+		</FilesMatch>
+		<Directory /usr/lib/cgi-bin>
+				SSLOptions +StdEnvVars
+		</Directory>
+
+	</VirtualHost>
+</IfModule>
+
+<IfModule mpm_itk_module>
+  AssignUserId _PF_APACHE_USER_ _PF_APACHE_USER_
+</IfModule>
